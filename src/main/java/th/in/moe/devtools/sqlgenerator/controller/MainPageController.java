@@ -20,6 +20,7 @@ import th.in.moe.devtools.sqlgenerator.common.constant.GeneratorConstant.GENERAT
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
 import th.in.moe.devtools.sqlgenerator.common.util.DialogUtils;
 import th.in.moe.devtools.sqlgenerator.service.CreateStatementGeneratorService;
+import th.in.moe.devtools.sqlgenerator.service.InsertStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.MySqlCreateStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.OracleCreateStatementGeneratorService;
 
@@ -131,7 +132,40 @@ public class MainPageController {
 	}
 	
 	private void processGenerateSqlInsertData(GeneratorCriteria criteria) throws GeneratedException {
+		final FileChooser xlsxFileChooser = new FileChooser();
+		xlsxFileChooser.setTitle("Select Excel File");
+		xlsxFileChooser.getExtensionFilters().add(new ExtensionFilter("Excel Workbook", "*.xlsx"));
+		File xlsxFile = xlsxFileChooser.showOpenDialog(mainApp.getPrimaryStage());
 		
+		if (xlsxFile != null) {
+			InsertStatementGeneratorService insertStatementGeneratorService = new InsertStatementGeneratorService();
+			List<String> sqlTextList = insertStatementGeneratorService.processXlsxFile(xlsxFile);
+			
+			// Show Information Alert
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.initOwner(mainApp.getPrimaryStage());
+			alert.setTitle("Success");
+			alert.setHeaderText(null);
+			alert.setContentText("Generate SQL success, Please select file to save result.");
+			alert.showAndWait();
+			
+			final FileChooser sqlFileChooser = new FileChooser();
+			sqlFileChooser.setTitle("Save SQL File");
+			sqlFileChooser.getExtensionFilters().add(new ExtensionFilter("Structured Query Language file", "*.sql"));
+			File sqlFile = sqlFileChooser.showSaveDialog(mainApp.getPrimaryStage());
+			
+			if (sqlFile != null) {
+				insertStatementGeneratorService.writeSqlFile(sqlTextList, sqlFile);
+				
+				// Show Information Alert
+				alert = new Alert(AlertType.INFORMATION);
+				alert.initOwner(mainApp.getPrimaryStage());
+				alert.setTitle("Success");
+				alert.setHeaderText(null);
+				alert.setContentText("Save file succeeded!!");
+				alert.showAndWait();
+			}
+		}
 	}
 	
 	private CreateStatementGeneratorService getCreateStatementGeneratorService(GeneratorCriteria criteria) throws GeneratedException {
