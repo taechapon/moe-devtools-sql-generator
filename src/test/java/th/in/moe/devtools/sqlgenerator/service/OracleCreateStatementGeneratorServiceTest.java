@@ -12,7 +12,7 @@ public class OracleCreateStatementGeneratorServiceTest {
 	private File xlsxFile = new File("/tmp/Oracle_CreateTable.xlsx");
 	private File sqlFile = new File("/tmp/Oracle_CreateTable.sql");
 	
-//	@Test
+	@Test
 	public void test_validateXlsxFile() throws GeneratedException {
 		OracleCreateStatementGeneratorService generatorService = new OracleCreateStatementGeneratorService();
 		

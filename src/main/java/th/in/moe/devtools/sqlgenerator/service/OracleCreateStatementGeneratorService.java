@@ -31,19 +31,19 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 	
 	private static final Logger logger = LoggerFactory.getLogger(OracleCreateStatementGeneratorService.class);
 	
-	private String CREATE_TABLE_TEMPLATE;
-	private String CREATE_TABLE_COLUMN_TEMPLATE;
-	private String CREATE_TABLE_PK_TEMPLATE;
-	private String COMMENT_TEMPLATE;
-	private String CREATE_SEQUENCE_TEMPLATE;
+	private String SQL_CREATE_TABLE_TEMPLATE;
+	private String SQL_CREATE_TABLE_COLUMN_TEMPLATE;
+	private String SQL_CREATE_TABLE_PK_TEMPLATE;
+	private String SQL_COMMENT_TEMPLATE;
+	private String SQL_CREATE_SEQUENCE_TEMPLATE;
 	
 	public OracleCreateStatementGeneratorService() throws GeneratedException {
 		try {
-			CREATE_TABLE_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_table.template"), StandardCharsets.UTF_8);
-			CREATE_TABLE_COLUMN_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_table-column.template"), StandardCharsets.UTF_8);
-			CREATE_TABLE_PK_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_table-pk.template"), StandardCharsets.UTF_8);
-			COMMENT_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_comment.template"), StandardCharsets.UTF_8);
-			CREATE_SEQUENCE_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_sequence.template"), StandardCharsets.UTF_8);
+			SQL_CREATE_TABLE_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_table.template"), StandardCharsets.UTF_8);
+			SQL_CREATE_TABLE_COLUMN_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_table-column.template"), StandardCharsets.UTF_8);
+			SQL_CREATE_TABLE_PK_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_table-pk.template"), StandardCharsets.UTF_8);
+			SQL_COMMENT_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_comment.template"), StandardCharsets.UTF_8);
+			SQL_CREATE_SEQUENCE_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/oracle/sql_create_sequence.template"), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new GeneratedException(e.getMessage(), e);
 		}
@@ -115,8 +115,8 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 				
 				tableBean = new TableBean();
 				tableBean.setTableName(sheet.getSheetName());
-				keyList = new ArrayList<ColumnBean>();
-				columnBeanList = new ArrayList<ColumnBean>();
+				keyList = new ArrayList<>();
+				columnBeanList = new ArrayList<>();
 				
 				for (Row row : sheet) {
 					if (row.getRowNum() == 0) {
@@ -207,7 +207,7 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 		logger.info("Generate SQL Create Table Statement");
 		
 		StringBuilder sqlText = null;
-		List<String> sqlTextList = new ArrayList<String>(tableBeanList.size());
+		List<String> sqlTextList = new ArrayList<>(tableBeanList.size());
 		Map<String, String> valueMap = null;
 		
 		for (TableBean tableBean : tableBeanList) {
@@ -217,7 +217,7 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 			valueMap.put("primaryKeyList", generateTablePrimaryKey(tableBean));
 			valueMap.put("commentList", generateComment(tableBean));
 			
-			sqlText = new StringBuilder(StringSubstitutor.replace(CREATE_TABLE_TEMPLATE, valueMap));
+			sqlText = new StringBuilder(StringSubstitutor.replace(SQL_CREATE_TABLE_TEMPLATE, valueMap));
 			sqlText.append(generateSequence(tableBean.getTableName()));
 			logger.info("Generate SQL create statement of table={} success", tableBean.getTableName());
 			sqlTextList.add(sqlText.toString());
@@ -239,7 +239,7 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 			valueMap.put("dataType", getColumnDataTypeAndSize(columnBean));
 			valueMap.put("optional", getColumnOptional(columnBean));
 			
-			builder.append(StringSubstitutor.replace(CREATE_TABLE_COLUMN_TEMPLATE, valueMap));
+			builder.append(StringSubstitutor.replace(SQL_CREATE_TABLE_COLUMN_TEMPLATE, valueMap));
 			
 			if (i < columnBeanList.size() - 1) {
 				builder.append(System.lineSeparator());
@@ -307,7 +307,7 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 			valueMap.put("tableName", tableBean.getTableName());
 			valueMap.put("pkList", builder.toString());
 			
-			primaryKeyText = StringSubstitutor.replace(CREATE_TABLE_PK_TEMPLATE, valueMap);
+			primaryKeyText = StringSubstitutor.replace(SQL_CREATE_TABLE_PK_TEMPLATE, valueMap);
 		} else {
 			primaryKeyText = "";
 		}
@@ -326,7 +326,7 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 				valueMap.put("columnName", columnBean.getColumnName());
 				valueMap.put("comment", columnBean.getComment());
 				
-				builder.append(StringSubstitutor.replace(COMMENT_TEMPLATE, valueMap));
+				builder.append(StringSubstitutor.replace(SQL_COMMENT_TEMPLATE, valueMap));
 			}
 		}
 		
@@ -337,7 +337,7 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 		Map<String, String> valueMap = new HashMap<>();
 		valueMap.put("tableName", tableName);
 		
-		return StringSubstitutor.replace(CREATE_SEQUENCE_TEMPLATE, valueMap);
+		return StringSubstitutor.replace(SQL_CREATE_SEQUENCE_TEMPLATE, valueMap);
 	}
 	
 	@Override

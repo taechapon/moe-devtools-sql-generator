@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 
-public class ExcelUtils {
+public abstract class ExcelUtils {
 	
 	/**
 	 * This method for the type of data in the cell, extracts the data and

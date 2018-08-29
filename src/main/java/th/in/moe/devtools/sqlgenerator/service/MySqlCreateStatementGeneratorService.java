@@ -31,15 +31,15 @@ public class MySqlCreateStatementGeneratorService implements CreateStatementGene
 	
 	private static final Logger logger = LoggerFactory.getLogger(MySqlCreateStatementGeneratorService.class);
 	
-	private String CREATE_TABLE_TEMPLATE;
-	private String CREATE_TABLE_COLUMN_TEMPLATE;
-	private String CREATE_TABLE_PK_TEMPLATE;
+	private String SQL_CREATE_TABLE_TEMPLATE;
+	private String SQL_CREATE_TABLE_COLUMN_TEMPLATE;
+	private String SQL_CREATE_TABLE_PK_TEMPLATE;
 	
 	public MySqlCreateStatementGeneratorService() throws GeneratedException {
 		try {
-			CREATE_TABLE_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/mysql/sql_create_table.template"), StandardCharsets.UTF_8);
-			CREATE_TABLE_COLUMN_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/mysql/sql_create_table-column.template"), StandardCharsets.UTF_8);
-			CREATE_TABLE_PK_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/mysql/sql_create_table-pk.template"), StandardCharsets.UTF_8);
+			SQL_CREATE_TABLE_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/mysql/sql_create_table.template"), StandardCharsets.UTF_8);
+			SQL_CREATE_TABLE_COLUMN_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/mysql/sql_create_table-column.template"), StandardCharsets.UTF_8);
+			SQL_CREATE_TABLE_PK_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/mysql/sql_create_table-pk.template"), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new GeneratedException(e.getMessage(), e);
 		}
@@ -112,8 +112,8 @@ public class MySqlCreateStatementGeneratorService implements CreateStatementGene
 				
 				tableBean = new TableBean();
 				tableBean.setTableName(sheet.getSheetName());
-				keyList = new ArrayList<ColumnBean>();
-				columnBeanList = new ArrayList<ColumnBean>();
+				keyList = new ArrayList<>();
+				columnBeanList = new ArrayList<>();
 				
 				for (Row row : sheet) {
 					if (row.getRowNum() == 0) {
@@ -224,7 +224,7 @@ public class MySqlCreateStatementGeneratorService implements CreateStatementGene
 			valueMap.put("columnList", generateTableColumn(tableBean.getColumnList()));
 			valueMap.put("primaryKeyList", generateTablePrimaryKey(tableBean.getKeyList()));
 			
-			sqlText = new StringBuilder(StringSubstitutor.replace(CREATE_TABLE_TEMPLATE, valueMap));
+			sqlText = new StringBuilder(StringSubstitutor.replace(SQL_CREATE_TABLE_TEMPLATE, valueMap));
 			logger.info("Generate SQL create statement of table={} success", tableBean.getTableName());
 			sqlTextList.add(sqlText.toString());
 		}
@@ -245,7 +245,7 @@ public class MySqlCreateStatementGeneratorService implements CreateStatementGene
 			valueMap.put("dataType", getColumnDataTypeAndLength(columnBean));
 			valueMap.put("optional", getColumnOptional(columnBean));
 			
-			builder.append(StringSubstitutor.replace(CREATE_TABLE_COLUMN_TEMPLATE, valueMap));
+			builder.append(StringSubstitutor.replace(SQL_CREATE_TABLE_COLUMN_TEMPLATE, valueMap));
 			
 			if (i < columnBeanList.size() - 1) {
 				builder.append(System.lineSeparator());
@@ -307,7 +307,7 @@ public class MySqlCreateStatementGeneratorService implements CreateStatementGene
 			Map<String, String> valueMap = new HashMap<>();
 			valueMap.put("pkList", builder.toString());
 			
-			primaryKeyText = StringSubstitutor.replace(CREATE_TABLE_PK_TEMPLATE, valueMap);
+			primaryKeyText = StringSubstitutor.replace(SQL_CREATE_TABLE_PK_TEMPLATE, valueMap);
 		} else {
 			primaryKeyText = "";
 		}

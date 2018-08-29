@@ -21,9 +21,12 @@
 		<skipTests>true</skipTests>
 		
 		<!-- Library -->
-		<commons-lang3.version>3.6</commons-lang3.version>
+		<commons-lang3.version>3.8</commons-lang3.version>
+		<commons-text.version>1.4</commons-text.version>
+		<commons-io.version>2.6</commons-io.version>
 		<logback.version>1.2.3</logback.version>
-		<apache-poi.version>3.16</apache-poi.version>
+		<apache-poi.version>3.17</apache-poi.version>
+		<xlsxstreamer.version>1.2.1</xlsxstreamer.version>
 		<junit.version>4.12</junit.version>
 	</properties>
 	
@@ -34,6 +37,16 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>${commons-text.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io.version}</version>
 		</dependency>
 		
 		<!-- logback -->
@@ -53,6 +66,23 @@
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
 			<version>${apache-poi.version}</version>
+		</dependency>
+		
+		<!-- Streaming Excel Reader -->
+		<dependency>
+			<groupId>com.monitorjbl</groupId>
+			<artifactId>xlsx-streamer</artifactId>
+			<version>${xlsxstreamer.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.virtuald</groupId>
+					<artifactId>curvesapi</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<!-- JUnit -->
