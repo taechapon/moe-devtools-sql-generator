@@ -11,7 +11,7 @@ public class GeneratorConstant {
 		public static final String ORACLE = "Oracle";
 	}
 	
-	public static final class FILE_TEMPLATE {
+	public static final class GENERATE_TYPE {
 		public static final String CREATE_TABLE = "Create Table";
 		public static final String INSERT_DATA = "Insert Data";
 	}

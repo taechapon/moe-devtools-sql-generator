@@ -1,0 +1,1 @@
+  CONSTRAINT "${tableName}_PK" PRIMARY KEY (${pkList})

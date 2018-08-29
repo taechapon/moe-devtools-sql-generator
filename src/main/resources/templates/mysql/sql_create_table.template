@@ -1,0 +1,7 @@
+-- ----------------------------
+-- Table structure for ${tableName}
+-- ----------------------------
+CREATE TABLE `${tableName}` (
+${columnList}
+${primaryKeyList}
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
