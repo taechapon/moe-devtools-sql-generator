@@ -23,6 +23,7 @@ import th.in.moe.devtools.sqlgenerator.service.CreateStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.InsertStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.MySqlCreateStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.OracleCreateStatementGeneratorService;
+import th.in.moe.devtools.sqlgenerator.service.SqlServerCreateStatementGeneratorService;
 
 public class MainPageController {
 	
@@ -59,7 +60,8 @@ public class MainPageController {
 		
 		dbProductionNameComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(
 			DATABASE_PRODUCTION_NAME.MYSQL,
-			DATABASE_PRODUCTION_NAME.ORACLE
+			DATABASE_PRODUCTION_NAME.ORACLE,
+			DATABASE_PRODUCTION_NAME.SQLSERVER
 		)));
 		dbProductionNameComboBox.getSelectionModel().select(0);
 	}
@@ -173,6 +175,8 @@ public class MainPageController {
 			return new MySqlCreateStatementGeneratorService();
 		} else if (DATABASE_PRODUCTION_NAME.ORACLE.equals(criteria.getDatabaseProductionName())) {
 			return new OracleCreateStatementGeneratorService();
+		} else if (DATABASE_PRODUCTION_NAME.SQLSERVER.equals(criteria.getDatabaseProductionName())) {
+			return new SqlServerCreateStatementGeneratorService();
 		} else {
 			return new MySqlCreateStatementGeneratorService();
 		}

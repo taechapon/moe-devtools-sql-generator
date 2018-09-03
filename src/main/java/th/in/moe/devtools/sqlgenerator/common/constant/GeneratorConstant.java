@@ -9,6 +9,7 @@ public class GeneratorConstant {
 	public static final class DATABASE_PRODUCTION_NAME {
 		public static final String MYSQL = "MySQL";
 		public static final String ORACLE = "Oracle";
+		public static final String SQLSERVER = "SQL Server";
 	}
 	
 	public static final class GENERATE_TYPE {
