@@ -1,4 +1,4 @@
 --------------------------------------------------------
---  DDL for Sequence ADM_OPERATION_SEQ
+-- DDL for Sequence ADM_OPERATION_SEQ
 --------------------------------------------------------
 CREATE SEQUENCE "${tableName}_SEQ" INCREMENT BY 1 START WITH 1 MAXVALUE 9999999999999999999999999999 MINVALUE 1 NOCACHE;
