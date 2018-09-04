@@ -5,3 +5,4 @@ CREATE TABLE "${tableName}" (
 ${columnList}
 ${primaryKeyList}
 );
+${commentList}

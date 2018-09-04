@@ -4,6 +4,8 @@ public class GeneratorCriteria {
 
 	private String databaseProductionName;
 	private String generateType;
+	// Additional
+	private String user;
 
 	public String getDatabaseProductionName() {
 		return databaseProductionName;
@@ -19,6 +21,14 @@ public class GeneratorCriteria {
 
 	public void setGenerateType(String generateType) {
 		this.generateType = generateType;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
 	}
 
 }

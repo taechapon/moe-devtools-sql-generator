@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import th.in.moe.devtools.sqlgenerator.common.bean.GeneratorCriteria;
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
 
 public class OracleCreateStatementGeneratorServiceTest {
@@ -21,9 +22,10 @@ public class OracleCreateStatementGeneratorServiceTest {
 	
 	@Test
 	public void test_processXlsxFile() throws GeneratedException {
+		GeneratorCriteria criteria = new GeneratorCriteria();
 		OracleCreateStatementGeneratorService generatorService = new OracleCreateStatementGeneratorService();
 		
-		List<String> sqlTextList = generatorService.processXlsxFile(xlsxFile);
+		List<String> sqlTextList = generatorService.processXlsxFile(criteria, xlsxFile);
 		sqlTextList.forEach(System.out::println);
 		
 		generatorService.writeSqlFile(sqlTextList, sqlFile);

@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import th.in.moe.devtools.sqlgenerator.common.bean.ColumnBean;
+import th.in.moe.devtools.sqlgenerator.common.bean.GeneratorCriteria;
 import th.in.moe.devtools.sqlgenerator.common.bean.TableBean;
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
 import th.in.moe.devtools.sqlgenerator.common.util.BooleanToStringConverter;
@@ -35,12 +34,14 @@ public class SqlServerCreateStatementGeneratorService implements CreateStatement
 	private String SQL_CREATE_TABLE_TEMPLATE;
 	private String SQL_CREATE_TABLE_COLUMN_TEMPLATE;
 	private String SQL_CREATE_TABLE_PK_TEMPLATE;
+	private String SQL_COMMENT_TEMPLATE;
 	
 	public SqlServerCreateStatementGeneratorService() throws GeneratedException {
 		try {
 			SQL_CREATE_TABLE_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/sqlserver/sql_create_table.template"), StandardCharsets.UTF_8);
 			SQL_CREATE_TABLE_COLUMN_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/sqlserver/sql_create_table-column.template"), StandardCharsets.UTF_8);
 			SQL_CREATE_TABLE_PK_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/sqlserver/sql_create_table-pk.template"), StandardCharsets.UTF_8);
+			SQL_COMMENT_TEMPLATE = IOUtils.toString(this.getClass().getResource("/templates/sqlserver/sql_comment.template"), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new GeneratedException(e.getMessage(), e);
 		}
@@ -86,11 +87,11 @@ public class SqlServerCreateStatementGeneratorService implements CreateStatement
 	}
 	
 	@Override
-	public List<String> processXlsxFile(File xlsxFile) throws GeneratedException {
+	public List<String> processXlsxFile(GeneratorCriteria criteria, File xlsxFile) throws GeneratedException {
 		logger.info("processXlsxFile xlsxFile={}", xlsxFile.getAbsolutePath());
 		
 		List<TableBean> tableBeanList = transformXlsx2Object(xlsxFile);
-		List<String> sqlTextList = genereateSqlCreateTableStatement(tableBeanList);
+		List<String> sqlTextList = genereateSqlCreateTableStatement(criteria, tableBeanList);
 		
 		logger.info("processXlsxFile xlsxFile={} Success", xlsxFile.getAbsolutePath());
 		
@@ -191,7 +192,7 @@ public class SqlServerCreateStatementGeneratorService implements CreateStatement
 		return tableBeanList;
 	}
 	
-	private List<String> genereateSqlCreateTableStatement(List<TableBean> tableBeanList) {
+	private List<String> genereateSqlCreateTableStatement(GeneratorCriteria criteria, List<TableBean> tableBeanList) {
 		logger.info("Generate SQL Create Table Statement");
 		
 		StringBuilder sqlText = null;
@@ -203,6 +204,7 @@ public class SqlServerCreateStatementGeneratorService implements CreateStatement
 			valueMap.put("tableName", tableBean.getTableName());
 			valueMap.put("columnList", generateTableColumn(tableBean.getColumnList()));
 			valueMap.put("primaryKeyList", generateTablePrimaryKey(tableBean.getKeyList()));
+			valueMap.put("commentList", generateComment(criteria, tableBean));
 			
 			sqlText = new StringBuilder(StringSubstitutor.replace(SQL_CREATE_TABLE_TEMPLATE, valueMap));
 			logger.info("Generate SQL create statement of table={} success", tableBean.getTableName());
@@ -286,6 +288,25 @@ public class SqlServerCreateStatementGeneratorService implements CreateStatement
 		}
 		
 		return primaryKeyText;
+	}
+	
+	private String generateComment(GeneratorCriteria criteria, TableBean tableBean) {
+		StringBuilder builder = new StringBuilder();
+		Map<String, String> valueMap = null;
+		
+		for (ColumnBean columnBean : tableBean.getColumnList()) {
+			if (StringUtils.isNotBlank(columnBean.getComment())) {
+				valueMap = new HashMap<>();
+				valueMap.put("user", criteria.getUser());
+				valueMap.put("tableName", tableBean.getTableName());
+				valueMap.put("columnName", columnBean.getColumnName());
+				valueMap.put("comment", columnBean.getComment());
+				
+				builder.append(StringSubstitutor.replace(SQL_COMMENT_TEMPLATE, valueMap));
+			}
+		}
+		
+		return builder.toString();
 	}
 	
 	@Override

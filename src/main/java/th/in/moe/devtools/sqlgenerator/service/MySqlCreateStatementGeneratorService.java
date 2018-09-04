@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import th.in.moe.devtools.sqlgenerator.common.bean.ColumnBean;
+import th.in.moe.devtools.sqlgenerator.common.bean.GeneratorCriteria;
 import th.in.moe.devtools.sqlgenerator.common.bean.MySqlColumnBean;
 import th.in.moe.devtools.sqlgenerator.common.bean.TableBean;
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
@@ -87,7 +88,7 @@ public class MySqlCreateStatementGeneratorService implements CreateStatementGene
 	}
 	
 	@Override
-	public List<String> processXlsxFile(File xlsxFile) throws GeneratedException {
+	public List<String> processXlsxFile(GeneratorCriteria criteria, File xlsxFile) throws GeneratedException {
 		logger.info("processXlsxFile xlsxFile={}", xlsxFile.getAbsolutePath());
 		
 		List<TableBean> tableBeanList = transformXlsx2Object(xlsxFile);

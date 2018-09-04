@@ -11,6 +11,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import th.in.moe.devtools.sqlgenerator.MainApp;
@@ -31,6 +33,8 @@ public class MainPageController {
 	private ComboBox<String> dbProductionNameComboBox;
 	@FXML
 	private ComboBox<String> generateTypeComboBox;
+	@FXML
+	private TextField dbUser;
 	
 	// Reference to the main application.
 	private MainApp mainApp;
@@ -64,6 +68,20 @@ public class MainPageController {
 			DATABASE_PRODUCTION_NAME.SQLSERVER
 		)));
 		dbProductionNameComboBox.getSelectionModel().select(0);
+		dbProductionNameComboBox.valueProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (DATABASE_PRODUCTION_NAME.SQLSERVER.equals(observable.getValue())) {
+					dbUser.setDisable(false);
+				} else {
+					dbUser.setText(null);
+					dbUser.setDisable(true);
+				}
+			}
+		});
+		
+		dbUser.setDisable(true);
+		dbUser.setTooltip(MainPageTooltip.getDbUser());
 	}
 	
 	@FXML
@@ -91,6 +109,7 @@ public class MainPageController {
 		GeneratorCriteria criteria = new GeneratorCriteria();
 		criteria.setDatabaseProductionName(dbProductionNameComboBox.getValue());
 		criteria.setGenerateType(generateTypeComboBox.getValue());
+		criteria.setUser(dbUser.getText());
 		
 		return criteria;
 	}
@@ -104,7 +123,7 @@ public class MainPageController {
 		if (xlsxFile != null) {
 			CreateStatementGeneratorService createStatementGeneratorService = getCreateStatementGeneratorService(criteria);
 			createStatementGeneratorService.validateXlsxFile(xlsxFile);
-			List<String> sqlTextList = createStatementGeneratorService.processXlsxFile(xlsxFile);
+			List<String> sqlTextList = createStatementGeneratorService.processXlsxFile(criteria, xlsxFile);
 			
 			// Show Information Alert
 			Alert alert = new Alert(AlertType.INFORMATION);
@@ -179,6 +198,18 @@ public class MainPageController {
 			return new SqlServerCreateStatementGeneratorService();
 		} else {
 			return new MySqlCreateStatementGeneratorService();
+		}
+	}
+	
+	// Tooltip
+	private static class MainPageTooltip {
+		
+		public static final Tooltip getDbUser() {
+			Tooltip tooltip = new Tooltip();
+			tooltip.setText(
+				"Using 'dbo' for default"
+			);
+			return tooltip;
 		}
 	}
 	
