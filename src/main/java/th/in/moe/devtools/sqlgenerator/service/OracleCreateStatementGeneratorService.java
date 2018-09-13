@@ -266,14 +266,17 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 		
 		if (StringUtils.isNotEmpty(columnBean.getDataSize())) {
 			if (("CHAR".equals(columnBean.getDataType()) || "VARCHAR2".equals(columnBean.getDataType()))
-					&& ("CHAR".equals(columnBean.getUnit()) || "BYTE".equals(columnBean.getUnit())))  {
+					&& ("CHAR".equals(columnBean.getUnit()) || "BYTE".equals(columnBean.getUnit()))) {
 				dataTypeAndSize = columnBean.getDataType() + "(" + columnBean.getDataSize() + " " + columnBean.getUnit() + ")";
+			} else if ("TIMESTAMP".equals(columnBean.getDataType())
+					&& ("TIME ZONE".equals(columnBean.getUnit()) || "LOCAL TIME ZONE".equals(columnBean.getUnit()))) {
+				dataTypeAndSize = columnBean.getDataType() + "(" + columnBean.getDataSize() + ") WITH " + columnBean.getUnit();
 			} else {
 				dataTypeAndSize = columnBean.getDataType() + "(" + columnBean.getDataSize() + ")";
 			}
 		} else {
 			if ("TIMESTAMP".equals(columnBean.getDataType())
-					&& ("TIME ZONE".equals(columnBean.getUnit()) || "LOCAL TIME ZONE".equals(columnBean.getUnit())))  {
+					&& ("TIME ZONE".equals(columnBean.getUnit()) || "LOCAL TIME ZONE".equals(columnBean.getUnit()))) {
 				dataTypeAndSize = columnBean.getDataType() + " WITH " + columnBean.getUnit();
 			} else {
 				dataTypeAndSize = columnBean.getDataType();
