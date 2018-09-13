@@ -2,7 +2,6 @@ package th.in.moe.devtools.sqlgenerator.service;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -48,6 +47,11 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 		} catch (IOException e) {
 			throw new GeneratedException(e.getMessage(), e);
 		}
+	}
+	
+	@Override
+	public Logger getLogger() {
+		return logger;
 	}
 	
 	@Override
@@ -339,18 +343,6 @@ public class OracleCreateStatementGeneratorService implements CreateStatementGen
 		valueMap.put("tableName", tableName);
 		
 		return StringSubstitutor.replace(SQL_CREATE_SEQUENCE_TEMPLATE, valueMap);
-	}
-	
-	@Override
-	public void writeSqlFile(List<String> sqlTextList, File sqlFile) throws GeneratedException {
-		try (FileOutputStream fos = new FileOutputStream(sqlFile)) {
-			IOUtils.writeLines(sqlTextList, System.lineSeparator(), fos, StandardCharsets.UTF_8);
-			fos.flush();
-			logger.info("Write SQL file={} success", sqlFile.getAbsolutePath());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new GeneratedException(e.getMessage(), e);
-		}
 	}
 	
 }
