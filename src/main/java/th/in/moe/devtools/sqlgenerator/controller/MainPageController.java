@@ -22,6 +22,7 @@ import th.in.moe.devtools.sqlgenerator.common.constant.GeneratorConstant.GENERAT
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
 import th.in.moe.devtools.sqlgenerator.common.util.DialogUtils;
 import th.in.moe.devtools.sqlgenerator.service.CreateStatementGeneratorService;
+import th.in.moe.devtools.sqlgenerator.service.H2CreateStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.InsertStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.MySqlCreateStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.OracleCreateStatementGeneratorService;
@@ -65,7 +66,8 @@ public class MainPageController {
 		dbProductionNameComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(
 			DATABASE_PRODUCTION_NAME.MYSQL,
 			DATABASE_PRODUCTION_NAME.ORACLE,
-			DATABASE_PRODUCTION_NAME.SQLSERVER
+			DATABASE_PRODUCTION_NAME.SQLSERVER,
+			DATABASE_PRODUCTION_NAME.H2
 		)));
 		dbProductionNameComboBox.getSelectionModel().select(0);
 		dbProductionNameComboBox.valueProperty().addListener(new ChangeListener<String>() {
@@ -196,6 +198,8 @@ public class MainPageController {
 			return new OracleCreateStatementGeneratorService();
 		} else if (DATABASE_PRODUCTION_NAME.SQLSERVER.equals(criteria.getDatabaseProductionName())) {
 			return new SqlServerCreateStatementGeneratorService();
+		} else if (DATABASE_PRODUCTION_NAME.H2.equals(criteria.getDatabaseProductionName())) {
+			return new H2CreateStatementGeneratorService();
 		} else {
 			return new MySqlCreateStatementGeneratorService();
 		}

@@ -1,0 +1,8 @@
+-- ----------------------------
+-- Table structure for ${tableName}
+-- ----------------------------
+CREATE TABLE ${tableName} (
+${columnList}
+${primaryKeyList}
+);
+${commentList}

@@ -1,0 +1,1 @@
+COMMENT ON COLUMN ${tableName}.${columnName} IS '${comment}';
