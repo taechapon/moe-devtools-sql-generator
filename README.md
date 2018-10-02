@@ -1,2 +1,2 @@
 # moe-devtools-sql-generator
-For generate SQL (Create table) from Excel file
+For generate SQL (Create table and Insert Data) from Excel file
