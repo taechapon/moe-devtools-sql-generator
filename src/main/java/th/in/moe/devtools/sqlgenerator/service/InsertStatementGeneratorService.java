@@ -33,6 +33,7 @@ public class InsertStatementGeneratorService {
 	private static final Logger logger = LoggerFactory.getLogger(InsertStatementGeneratorService.class);
 	
 	private String SQL_INSERT_TEMPLATE;
+	private static final String ORACLE_NEXTVAL = "NEXTVAL";
 	
 	public InsertStatementGeneratorService() throws GeneratedException {
 		try {
@@ -135,14 +136,20 @@ public class InsertStatementGeneratorService {
 		return sqlTextList;
 	}
 	
-	private String collectionToDelimitedString(Collection<?> collection, String delim, String prefix, String suffix) {
+	private String collectionToDelimitedString(Collection<String> collection, String delim, String prefix, String suffix) {
 		if ((collection == null || collection.isEmpty())) {
 			return "";
 		}
 		StringBuilder sb = new StringBuilder();
-		Iterator<?> it = collection.iterator();
+		Iterator<String> it = collection.iterator();
+		String text = null;
 		while (it.hasNext()) {
-			sb.append(prefix).append(it.next()).append(suffix);
+			text = it.next();
+			if (text.endsWith(ORACLE_NEXTVAL)) {
+				sb.append(text);
+			} else {
+				sb.append(prefix).append(text).append(suffix);
+			}
 			if (it.hasNext()) {
 				sb.append(delim);
 			}

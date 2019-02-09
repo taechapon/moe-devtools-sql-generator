@@ -166,18 +166,19 @@ public class MainPageController {
 			
 			// Show Information Alert
 			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.initOwner(mainApp.getPrimaryStage());
-			alert.setTitle("Success");
-			alert.setHeaderText(null);
-			alert.setContentText("Generate SQL success, Please select file to save result.");
-			alert.showAndWait();
-			
-			final FileChooser sqlFileChooser = new FileChooser();
-			sqlFileChooser.setTitle("Save SQL File");
-			sqlFileChooser.getExtensionFilters().add(new ExtensionFilter("Structured Query Language file", "*.sql"));
-			File sqlFile = sqlFileChooser.showSaveDialog(mainApp.getPrimaryStage());
-			
-			if (sqlFile != null) {
+//			alert.initOwner(mainApp.getPrimaryStage());
+//			alert.setTitle("Success");
+//			alert.setHeaderText(null);
+//			alert.setContentText("Generate SQL success, Please select file to save result.");
+//			alert.showAndWait();
+//			
+//			final FileChooser sqlFileChooser = new FileChooser();
+//			sqlFileChooser.setTitle("Save SQL File");
+//			sqlFileChooser.getExtensionFilters().add(new ExtensionFilter("Structured Query Language file", "*.sql"));
+//			File sqlFile = sqlFileChooser.showSaveDialog(mainApp.getPrimaryStage());
+//			
+//			if (sqlFile != null) {
+				File sqlFile = new File(xlsxFile.getAbsolutePath().substring(0, xlsxFile.getAbsolutePath().lastIndexOf(".")) + ".sql");
 				insertStatementGeneratorService.writeSqlFile(sqlTextList, sqlFile);
 				
 				// Show Information Alert
@@ -187,7 +188,7 @@ public class MainPageController {
 				alert.setHeaderText(null);
 				alert.setContentText("Save file succeeded!!");
 				alert.showAndWait();
-			}
+//			}
 		}
 	}
 	
