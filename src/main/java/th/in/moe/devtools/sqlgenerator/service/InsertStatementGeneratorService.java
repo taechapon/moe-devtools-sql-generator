@@ -34,6 +34,7 @@ public class InsertStatementGeneratorService {
 	
 	private String SQL_INSERT_TEMPLATE;
 	private static final String ORACLE_NEXTVAL = "NEXTVAL";
+	private static final String NULL = "NULL";
 	
 	public InsertStatementGeneratorService() throws GeneratedException {
 		try {
@@ -147,6 +148,8 @@ public class InsertStatementGeneratorService {
 			text = it.next();
 			if (text.endsWith(ORACLE_NEXTVAL)) {
 				sb.append(text);
+			} else if (NULL.equalsIgnoreCase(text)) {
+				sb.append(NULL);
 			} else {
 				sb.append(prefix).append(text).append(suffix);
 			}
