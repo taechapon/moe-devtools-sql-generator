@@ -16,6 +16,7 @@ public class GeneratorConstant {
 	public static final class GENERATE_TYPE {
 		public static final String CREATE_TABLE = "Create Table";
 		public static final String INSERT_DATA = "Insert Data";
+		public static final String UPDATE_DATA = "Update Data";
 	}
 	
 }

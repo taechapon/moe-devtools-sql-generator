@@ -27,6 +27,7 @@ import th.in.moe.devtools.sqlgenerator.service.InsertStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.MySqlCreateStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.OracleCreateStatementGeneratorService;
 import th.in.moe.devtools.sqlgenerator.service.SqlServerCreateStatementGeneratorService;
+import th.in.moe.devtools.sqlgenerator.service.UpdateStatementGeneratorService;
 
 public class MainPageController {
 	
@@ -49,13 +50,14 @@ public class MainPageController {
 	public void initialize() {
 		generateTypeComboBox.setItems(FXCollections.observableArrayList(Arrays.asList(
 			GENERATE_TYPE.CREATE_TABLE,
-			GENERATE_TYPE.INSERT_DATA
+			GENERATE_TYPE.INSERT_DATA,
+			GENERATE_TYPE.UPDATE_DATA
 		)));
 		generateTypeComboBox.getSelectionModel().select(0);
 		generateTypeComboBox.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (GENERATE_TYPE.INSERT_DATA.equals(observable.getValue())) {
+				if (GENERATE_TYPE.INSERT_DATA.equals(observable.getValue()) || GENERATE_TYPE.UPDATE_DATA.equals(observable.getValue())) {
 					dbProductionNameComboBox.setDisable(true);
 				} else {
 					dbProductionNameComboBox.setDisable(false);
@@ -94,6 +96,8 @@ public class MainPageController {
 				processGenerateSqlCreateTable(criteria);
 			} else if (GENERATE_TYPE.INSERT_DATA.equals(criteria.getGenerateType())) {
 				processGenerateSqlInsertData(criteria);
+			} else if (GENERATE_TYPE.UPDATE_DATA.equals(criteria.getGenerateType())) {
+				processGenerateSqlUpdateData(criteria);
 			}
 		} catch (GeneratedException e) {
 			// Show Error Alert
@@ -129,18 +133,19 @@ public class MainPageController {
 			
 			// Show Information Alert
 			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.initOwner(mainApp.getPrimaryStage());
-			alert.setTitle("Success");
-			alert.setHeaderText(null);
-			alert.setContentText("Generate SQL success, Please select file to save result.");
-			alert.showAndWait();
-			
-			final FileChooser sqlFileChooser = new FileChooser();
-			sqlFileChooser.setTitle("Save SQL File");
-			sqlFileChooser.getExtensionFilters().add(new ExtensionFilter("Structured Query Language file", "*.sql"));
-			File sqlFile = sqlFileChooser.showSaveDialog(mainApp.getPrimaryStage());
-			
-			if (sqlFile != null) {
+//			alert.initOwner(mainApp.getPrimaryStage());
+//			alert.setTitle("Success");
+//			alert.setHeaderText(null);
+//			alert.setContentText("Generate SQL success, Please select file to save result.");
+//			alert.showAndWait();
+//			
+//			final FileChooser sqlFileChooser = new FileChooser();
+//			sqlFileChooser.setTitle("Save SQL File");
+//			sqlFileChooser.getExtensionFilters().add(new ExtensionFilter("Structured Query Language file", "*.sql"));
+//			File sqlFile = sqlFileChooser.showSaveDialog(mainApp.getPrimaryStage());
+//			
+//			if (sqlFile != null) {
+				File sqlFile = new File(xlsxFile.getAbsolutePath().substring(0, xlsxFile.getAbsolutePath().lastIndexOf(".")) + ".sql");
 				createStatementGeneratorService.writeSqlFile(sqlTextList, sqlFile);
 				
 				// Show Information Alert
@@ -150,7 +155,7 @@ public class MainPageController {
 				alert.setHeaderText(null);
 				alert.setContentText("Save file succeeded!!");
 				alert.showAndWait();
-			}
+//			}
 		}
 	}
 	
@@ -203,6 +208,44 @@ public class MainPageController {
 			return new H2CreateStatementGeneratorService();
 		} else {
 			return new MySqlCreateStatementGeneratorService();
+		}
+	}
+	
+	private void processGenerateSqlUpdateData(GeneratorCriteria criteria) throws GeneratedException {
+		final FileChooser xlsxFileChooser = new FileChooser();
+		xlsxFileChooser.setTitle("Select Excel File");
+		xlsxFileChooser.getExtensionFilters().add(new ExtensionFilter("Excel Workbook", "*.xlsx"));
+		File xlsxFile = xlsxFileChooser.showOpenDialog(mainApp.getPrimaryStage());
+		
+		if (xlsxFile != null) {
+			UpdateStatementGeneratorService updateStatementGeneratorService = new UpdateStatementGeneratorService();
+			List<String> sqlTextList = updateStatementGeneratorService.processXlsxFile(xlsxFile);
+			
+			// Show Information Alert
+			Alert alert = new Alert(AlertType.INFORMATION);
+//			alert.initOwner(mainApp.getPrimaryStage());
+//			alert.setTitle("Success");
+//			alert.setHeaderText(null);
+//			alert.setContentText("Generate SQL success, Please select file to save result.");
+//			alert.showAndWait();
+//			
+//			final FileChooser sqlFileChooser = new FileChooser();
+//			sqlFileChooser.setTitle("Save SQL File");
+//			sqlFileChooser.getExtensionFilters().add(new ExtensionFilter("Structured Query Language file", "*.sql"));
+//			File sqlFile = sqlFileChooser.showSaveDialog(mainApp.getPrimaryStage());
+//			
+//			if (sqlFile != null) {
+				File sqlFile = new File(xlsxFile.getAbsolutePath().substring(0, xlsxFile.getAbsolutePath().lastIndexOf(".")) + ".sql");
+				updateStatementGeneratorService.writeSqlFile(sqlTextList, sqlFile);
+				
+				// Show Information Alert
+				alert = new Alert(AlertType.INFORMATION);
+				alert.initOwner(mainApp.getPrimaryStage());
+				alert.setTitle("Success");
+				alert.setHeaderText(null);
+				alert.setContentText("Save file succeeded!!");
+				alert.showAndWait();
+//			}
 		}
 	}
 	

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.monitorjbl.xlsx.StreamingReader;
 
-import th.in.moe.devtools.sqlgenerator.common.bean.TableDataBean;
+import th.in.moe.devtools.sqlgenerator.common.bean.TableInsertDataBean;
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
 import th.in.moe.devtools.sqlgenerator.common.util.ExcelUtils;
 
@@ -47,7 +47,7 @@ public class InsertStatementGeneratorService {
 	public List<String> processXlsxFile(File xlsxFile) throws GeneratedException {
 		logger.info("processXlsxFile xlsxFile={}", xlsxFile.getAbsolutePath());
 		
-		List<TableDataBean> tableBeanList = transformXlsx2Object(xlsxFile);
+		List<TableInsertDataBean> tableBeanList = transformXlsx2Object(xlsxFile);
 		List<String> sqlTextList = genereateSqlInsertStatement(tableBeanList);
 		
 		logger.info("processXlsxFile xlsxFile={} Success", xlsxFile.getAbsolutePath());
@@ -55,30 +55,30 @@ public class InsertStatementGeneratorService {
 		return sqlTextList;
 	}
 	
-	private List<TableDataBean> transformXlsx2Object(File xlsxFile) throws GeneratedException {
+	private List<TableInsertDataBean> transformXlsx2Object(File xlsxFile) throws GeneratedException {
 		logger.info("transformXlsx2Object xlsxFile={}", xlsxFile.getAbsolutePath());
 		
-		List<TableDataBean> tableDataBeanList = new ArrayList<>();
+		List<TableInsertDataBean> tableDataBeanList = new ArrayList<>();
 		
 		try (Workbook workbook = StreamingReader.builder()
-			.rowCacheSize(50)	// number of rows to keep in memory (defaults to 10)
-			.bufferSize(2048)	// buffer size to use when reading InputStream to file (defaults to 1024)
-			.open(new FileInputStream(xlsxFile))) {
+				.rowCacheSize(50)	// number of rows to keep in memory (defaults to 10)
+				.bufferSize(2048)	// buffer size to use when reading InputStream to file (defaults to 1024)
+				.open(new FileInputStream(xlsxFile))) {
 			
-			TableDataBean tableDataBean = null;
-			List<String> columnNameList = null;
-			List<List<String>> columnDataList = null;
+			TableInsertDataBean tableDataBean = null;
+			List<String> insertColumnList = null;
+			List<List<String>> insertDataList = null;
 			List<String> dataList = null;
 			
 			Iterator<Sheet> sheetIterator = workbook.iterator();
 			Sheet sheet = null;
 			while (sheetIterator.hasNext()) {
 				sheet = sheetIterator.next();
-				tableDataBean = new TableDataBean();
+				tableDataBean = new TableInsertDataBean();
 				tableDataBean.setTableName(sheet.getSheetName());
 				
-				columnNameList = new ArrayList<>();
-				columnDataList = new ArrayList<List<String>>();
+				insertColumnList = new ArrayList<>();
+				insertDataList = new ArrayList<List<String>>();
 				
 				for (Row row : sheet) {
 					
@@ -86,26 +86,26 @@ public class InsertStatementGeneratorService {
 						
 						// First Row, Column Header
 						for (Cell cell : row) {
-							columnNameList.add(StringUtils.trim(ExcelUtils.getCellValueAsString(cell)));
+							insertColumnList.add(StringUtils.trim(ExcelUtils.getCellValueAsString(cell)));
 						}
-						tableDataBean.setColumnNameList(columnNameList);
+						tableDataBean.setInsertColumnList(insertColumnList);
 						
 					} else {
 						
 						// Data Row
 						dataList = new ArrayList<>();
-						for (int i = 0; i < columnNameList.size(); i++) {
+						for (int i = 0; i < insertColumnList.size(); i++) {
 							if (row.getCell(i) != null) {
 								dataList.add(StringUtils.trim(ExcelUtils.getCellValueAsString(row.getCell(i))));
 							} else {
 								dataList.add(StringUtils.EMPTY);
 							}
 						}
-						columnDataList.add(dataList);
+						insertDataList.add(dataList);
 					}
 					
 				}
-				tableDataBean.setColumnDataList(columnDataList);
+				tableDataBean.setInsertDataList(insertDataList);
 				tableDataBeanList.add(tableDataBean);
 			}
 			
@@ -117,14 +117,14 @@ public class InsertStatementGeneratorService {
 		return tableDataBeanList;
 	}
 	
-	private List<String> genereateSqlInsertStatement(List<TableDataBean> tableDataBeanList) {
+	private List<String> genereateSqlInsertStatement(List<TableInsertDataBean> tableDataBeanList) {
 		List<String> sqlTextList = new ArrayList<>();
 		String columnName = null;
 		Map<String, String> valueMap = null;
 		
-		for (TableDataBean tableDataBean : tableDataBeanList) {
-			columnName = collectionToDelimitedString(tableDataBean.getColumnNameList(), ",", "", "");
-			for (List<String> columnDataList : tableDataBean.getColumnDataList()) {
+		for (TableInsertDataBean tableDataBean : tableDataBeanList) {
+			columnName = collectionToDelimitedString(tableDataBean.getInsertColumnList(), ",", "", "");
+			for (List<String> columnDataList : tableDataBean.getInsertDataList()) {
 				valueMap = new HashMap<>();
 				valueMap.put("tableName", tableDataBean.getTableName());
 				valueMap.put("columnName", columnName);
@@ -148,10 +148,12 @@ public class InsertStatementGeneratorService {
 			text = it.next();
 			if (text.endsWith(ORACLE_NEXTVAL)) {
 				sb.append(text);
-			} else if (NULL.equalsIgnoreCase(text)) {
-				sb.append(NULL);
 			} else {
-				sb.append(prefix).append(text).append(suffix);
+				if (NULL.equalsIgnoreCase(text)) {
+					sb.append(NULL);
+				} else {
+					sb.append(prefix).append(text).append(suffix);
+				}
 			}
 			if (it.hasNext()) {
 				sb.append(delim);
