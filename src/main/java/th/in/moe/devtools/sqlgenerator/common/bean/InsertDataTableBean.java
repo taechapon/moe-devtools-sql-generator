@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class TableInsertDataBean {
+public class InsertDataTableBean {
 
 	private String tableName;
 	private List<String> insertColumnList;

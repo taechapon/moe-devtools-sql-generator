@@ -2,7 +2,6 @@ package th.in.moe.devtools.sqlgenerator.service;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -23,11 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import com.monitorjbl.xlsx.StreamingReader;
 
-import th.in.moe.devtools.sqlgenerator.common.bean.TableUpdateDataBean;
+import th.in.moe.devtools.sqlgenerator.common.bean.UpdateDataTableBean;
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
 import th.in.moe.devtools.sqlgenerator.common.util.ExcelUtils;
 
-public class UpdateStatementGeneratorService {
+public class UpdateStatementGeneratorService implements GeneratorService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(UpdateStatementGeneratorService.class);
 	
@@ -44,10 +43,15 @@ public class UpdateStatementGeneratorService {
 		}
 	}
 	
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public List<String> processXlsxFile(File xlsxFile) throws GeneratedException {
 		logger.info("processXlsxFile xlsxFile={}", xlsxFile.getAbsolutePath());
 		
-		List<TableUpdateDataBean> tableBeanList = transformXlsx2Object(xlsxFile);
+		List<UpdateDataTableBean> tableBeanList = transformXlsx2Object(xlsxFile);
 		List<String> sqlTextList = genereateSqlUpdateStatement(tableBeanList);
 		
 		logger.info("processXlsxFile xlsxFile={} Success", xlsxFile.getAbsolutePath());
@@ -55,17 +59,17 @@ public class UpdateStatementGeneratorService {
 		return sqlTextList;
 	}
 	
-	private List<TableUpdateDataBean> transformXlsx2Object(File xlsxFile) throws GeneratedException {
+	private List<UpdateDataTableBean> transformXlsx2Object(File xlsxFile) throws GeneratedException {
 		logger.info("transformXlsx2Object xlsxFile={}", xlsxFile.getAbsolutePath());
 		
-		List<TableUpdateDataBean> tableDataBeanList = new ArrayList<>();
+		List<UpdateDataTableBean> tableDataBeanList = new ArrayList<>();
 		
 		try (Workbook workbook = StreamingReader.builder()
 			.rowCacheSize(50)	// number of rows to keep in memory (defaults to 10)
 			.bufferSize(2048)	// buffer size to use when reading InputStream to file (defaults to 1024)
 			.open(new FileInputStream(xlsxFile))) {
 			
-			TableUpdateDataBean tableUpdateDataBean = null;
+			UpdateDataTableBean tableUpdateDataBean = null;
 			List<String> updateColumnList = null;
 			List<List<String>> updateDataList = null;
 			List<String> dataList = null;
@@ -79,7 +83,7 @@ public class UpdateStatementGeneratorService {
 			Sheet sheet = null;
 			while (sheetIterator.hasNext()) {
 				sheet = sheetIterator.next();
-				tableUpdateDataBean = new TableUpdateDataBean();
+				tableUpdateDataBean = new UpdateDataTableBean();
 				tableUpdateDataBean.setTableName(sheet.getSheetName());
 				
 				updateColumnList = new ArrayList<>();
@@ -144,11 +148,11 @@ public class UpdateStatementGeneratorService {
 		return tableDataBeanList;
 	}
 	
-	private List<String> genereateSqlUpdateStatement(List<TableUpdateDataBean> tableDataBeanList) {
+	private List<String> genereateSqlUpdateStatement(List<UpdateDataTableBean> tableDataBeanList) {
 		List<String> sqlTextList = new ArrayList<>();
 		Map<String, String> valueMap = null;
 		
-		for (TableUpdateDataBean tableUpdateDataBean : tableDataBeanList) {
+		for (UpdateDataTableBean tableUpdateDataBean : tableDataBeanList) {
 			int size = tableUpdateDataBean.getUpdateDataList().size();
 			for (int i = 0; i < size; i++) {
 				valueMap = new HashMap<>();
@@ -190,17 +194,6 @@ public class UpdateStatementGeneratorService {
 			builder.append(updateConditionColumnList.get(i)).append("=").append(prefix).append(conditionList.get(i)).append(suffix);
 		}
 		return builder.toString();
-	}
-	
-	public void writeSqlFile(List<String> sqlTextList, File sqlFile) throws GeneratedException {
-		try (FileOutputStream fos = new FileOutputStream(sqlFile)) {
-			IOUtils.writeLines(sqlTextList, System.lineSeparator(), fos, StandardCharsets.UTF_8);
-			fos.flush();
-			logger.info("Write SQL file={} success", sqlFile.getAbsolutePath());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new GeneratedException(e.getMessage(), e);
-		}
 	}
 	
 }

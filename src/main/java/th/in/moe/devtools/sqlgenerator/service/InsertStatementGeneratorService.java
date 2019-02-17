@@ -2,7 +2,6 @@ package th.in.moe.devtools.sqlgenerator.service;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -24,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import com.monitorjbl.xlsx.StreamingReader;
 
-import th.in.moe.devtools.sqlgenerator.common.bean.TableInsertDataBean;
+import th.in.moe.devtools.sqlgenerator.common.bean.InsertDataTableBean;
 import th.in.moe.devtools.sqlgenerator.common.exception.GeneratedException;
 import th.in.moe.devtools.sqlgenerator.common.util.ExcelUtils;
 
-public class InsertStatementGeneratorService {
+public class InsertStatementGeneratorService implements GeneratorService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(InsertStatementGeneratorService.class);
 	
@@ -44,10 +43,15 @@ public class InsertStatementGeneratorService {
 		}
 	}
 	
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public List<String> processXlsxFile(File xlsxFile) throws GeneratedException {
 		logger.info("processXlsxFile xlsxFile={}", xlsxFile.getAbsolutePath());
 		
-		List<TableInsertDataBean> tableBeanList = transformXlsx2Object(xlsxFile);
+		List<InsertDataTableBean> tableBeanList = transformXlsx2Object(xlsxFile);
 		List<String> sqlTextList = genereateSqlInsertStatement(tableBeanList);
 		
 		logger.info("processXlsxFile xlsxFile={} Success", xlsxFile.getAbsolutePath());
@@ -55,17 +59,17 @@ public class InsertStatementGeneratorService {
 		return sqlTextList;
 	}
 	
-	private List<TableInsertDataBean> transformXlsx2Object(File xlsxFile) throws GeneratedException {
+	private List<InsertDataTableBean> transformXlsx2Object(File xlsxFile) throws GeneratedException {
 		logger.info("transformXlsx2Object xlsxFile={}", xlsxFile.getAbsolutePath());
 		
-		List<TableInsertDataBean> tableDataBeanList = new ArrayList<>();
+		List<InsertDataTableBean> tableDataBeanList = new ArrayList<>();
 		
 		try (Workbook workbook = StreamingReader.builder()
 				.rowCacheSize(50)	// number of rows to keep in memory (defaults to 10)
 				.bufferSize(2048)	// buffer size to use when reading InputStream to file (defaults to 1024)
 				.open(new FileInputStream(xlsxFile))) {
 			
-			TableInsertDataBean tableDataBean = null;
+			InsertDataTableBean tableDataBean = null;
 			List<String> insertColumnList = null;
 			List<List<String>> insertDataList = null;
 			List<String> dataList = null;
@@ -74,7 +78,7 @@ public class InsertStatementGeneratorService {
 			Sheet sheet = null;
 			while (sheetIterator.hasNext()) {
 				sheet = sheetIterator.next();
-				tableDataBean = new TableInsertDataBean();
+				tableDataBean = new InsertDataTableBean();
 				tableDataBean.setTableName(sheet.getSheetName());
 				
 				insertColumnList = new ArrayList<>();
@@ -117,12 +121,12 @@ public class InsertStatementGeneratorService {
 		return tableDataBeanList;
 	}
 	
-	private List<String> genereateSqlInsertStatement(List<TableInsertDataBean> tableDataBeanList) {
+	private List<String> genereateSqlInsertStatement(List<InsertDataTableBean> tableDataBeanList) {
 		List<String> sqlTextList = new ArrayList<>();
 		String columnName = null;
 		Map<String, String> valueMap = null;
 		
-		for (TableInsertDataBean tableDataBean : tableDataBeanList) {
+		for (InsertDataTableBean tableDataBean : tableDataBeanList) {
 			columnName = collectionToDelimitedString(tableDataBean.getInsertColumnList(), ",", "", "");
 			for (List<String> columnDataList : tableDataBean.getInsertDataList()) {
 				valueMap = new HashMap<>();
@@ -160,17 +164,6 @@ public class InsertStatementGeneratorService {
 			}
 		}
 		return sb.toString();
-	}
-	
-	public void writeSqlFile(List<String> sqlTextList, File sqlFile) throws GeneratedException {
-		try (FileOutputStream fos = new FileOutputStream(sqlFile)) {
-			IOUtils.writeLines(sqlTextList, System.lineSeparator(), fos, StandardCharsets.UTF_8);
-			fos.flush();
-			logger.info("Write SQL file={} success", sqlFile.getAbsolutePath());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new GeneratedException(e.getMessage(), e);
-		}
 	}
 	
 }
