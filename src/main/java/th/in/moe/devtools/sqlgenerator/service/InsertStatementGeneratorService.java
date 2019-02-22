@@ -33,6 +33,8 @@ public class InsertStatementGeneratorService implements GeneratorService {
 	
 	private String SQL_INSERT_TEMPLATE;
 	private static final String ORACLE_NEXTVAL = "NEXTVAL";
+	private static final String ORACLE_TO_DATE_FLAG = "ORACLE_TO_DATE";
+	private static final String ORACLE_TO_DATE = "TO_DATE";
 	private static final String NULL = "NULL";
 	
 	public InsertStatementGeneratorService() throws GeneratedException {
@@ -145,25 +147,27 @@ public class InsertStatementGeneratorService implements GeneratorService {
 		if ((collection == null || collection.isEmpty())) {
 			return "";
 		}
-		StringBuilder sb = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
 		Iterator<String> it = collection.iterator();
 		String text = null;
 		while (it.hasNext()) {
 			text = it.next();
 			if (text.endsWith(ORACLE_NEXTVAL)) {
-				sb.append(text);
+				builder.append(text);
 			} else {
-				if (NULL.equalsIgnoreCase(text)) {
-					sb.append(NULL);
+				if (StringUtils.isEmpty(text) || NULL.equalsIgnoreCase(text)) {
+					builder.append(NULL);
+				} else if (text.startsWith(ORACLE_TO_DATE_FLAG)) {
+					builder.append(ORACLE_TO_DATE).append(text.substring(ORACLE_TO_DATE_FLAG.length(), text.length()));
 				} else {
-					sb.append(prefix).append(text).append(suffix);
+					builder.append(prefix).append(text).append(suffix);
 				}
 			}
 			if (it.hasNext()) {
-				sb.append(delim);
+				builder.append(delim);
 			}
 		}
-		return sb.toString();
+		return builder.toString();
 	}
 	
 }
